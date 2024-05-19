@@ -100,12 +100,18 @@ if __name__=="__main__":
          "¿Cuál es la habilidad o experiencia que consideras más relevante y cómo has aplicado o aplicarías esta habilidad en el ámbito laboral?"
     ]
 
-    question = get_new_interview_question(api_key= API_KEY, old_questions=[])
+    async def main():
+        question = obtain_new_interview_question(api_key= API_KEY, old_questions=[])
 
-    print(question)
+        print(question)
 
-    answer = input('answer: ')
+        answer = input('answer: ')
 
-    feedback = get_question_answer_feedback(api_key= API_KEY, question= question, answer= answer)
+        feedback = obtain_question_answer_feedback(api_key= API_KEY, question= question, answer= answer)
 
-    print(feedback)
+        print(feedback)
+
+
+    asyncio.run(main())
+
+    
