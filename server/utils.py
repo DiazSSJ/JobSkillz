@@ -1,5 +1,6 @@
 import requests
 from requests import Response
+from exceptions import OpenAIException
 
 async def chat_gpt_request(api_key: str, prompt: str, max_tokens: int = 50) -> Response:
 
@@ -52,7 +53,9 @@ async def obtain_new_interview_question(api_key: str, old_questions: list[str]) 
     response = chat_gpt_request(api_key= api_key, prompt= prompt)
 
     if not response.ok:
-            raise Exception(f"OpenAI API Error: {response.status_code} - {response.reason}")
+            raise OpenAIException(status_code= response.status_code,
+                                  reason= response.reason
+                                  )
     
 
     data = response.json()
@@ -76,7 +79,9 @@ async def obtain_question_answer_feedback(api_key: str, question: str, answer: s
     response = chat_gpt_request(api_key= api_key, prompt= prompt, max_tokens= 80)
 
     if not response.ok:
-            raise Exception(f"OpenAI API Error: {response.status_code} - {response.reason}")
+            raise OpenAIException(status_code= response.status_code,
+                                  reason= response.reason
+                                  )
     
 
     data = response.json()
