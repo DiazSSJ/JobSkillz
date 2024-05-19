@@ -22,7 +22,7 @@ async def chat_gpt_request(api_key: str, prompt: str, max_tokens: int = 50) -> R
     
 
 
-async def get_new_interview_question(api_key: str, old_questions: list[str]) -> str:
+async def obtain_new_interview_question(api_key: str, old_questions: list[str]) -> str:
 
     temp = ""
 
@@ -61,7 +61,7 @@ async def get_new_interview_question(api_key: str, old_questions: list[str]) -> 
 
 
 
-async def get_question_answer_feedback(api_key: str, question: str, answer: str) -> str:
+async def obtain_question_answer_feedback(api_key: str, question: str, answer: str) -> str:
      
     prompt = f"""eres un experto entrevistador, estas ayudando a una persona a prepararse para una entrevista laboral,
         ahora debes de dar feedback a la persona sobre una de sus respuestas, el feedback debe ser corto y conciso(menos de 50 palabras),
