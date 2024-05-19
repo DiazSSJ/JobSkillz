@@ -50,7 +50,7 @@ async def obtain_new_interview_question(api_key: str, old_questions: list[str]) 
                                      )
         
 
-    response = chat_gpt_request(api_key= api_key, prompt= prompt)
+    response = await chat_gpt_request(api_key= api_key, prompt= prompt)
 
     if not response.ok:
             raise OpenAIException(status_code= response.status_code,
@@ -76,7 +76,7 @@ async def obtain_question_answer_feedback(api_key: str, question: str, answer: s
         {answer}
         """
 
-    response = chat_gpt_request(api_key= api_key, prompt= prompt, max_tokens= 80)
+    response = await chat_gpt_request(api_key= api_key, prompt= prompt, max_tokens= 80)
 
     if not response.ok:
             raise OpenAIException(status_code= response.status_code,
