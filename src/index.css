@@ -1,8 +1,18 @@
+@font-face {
+  font-family: 'MiTipografia';
+  src: url('./Resources/Fonts/ThickBoy_Regular.ttf') format('truetype');
+  font-weight: normal; /* Para la variante regular */
+}
+
+@font-face {
+  font-family: 'MiTipografia';
+  src: url('./Resources/Fonts/ThickBoy_Bold.ttf') format('truetype');
+  font-weight: bold; /* Para la variante bold */
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'MiTipografia', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -1,0 +1,22 @@
+.container-home {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    background-image: url('../../Resources/jobskillz-image.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+.titles{
+  margin-top: 5vh;
+  margin-left: 3vw;
+}
+
+.cartas {
+  display: flex;
+  margin-top: 8vh;
+  margin-left: 3vw;
+  gap: 3vw;
+}
