@@ -94,6 +94,7 @@ body {
     align-self: flex-start;
     margin-left: 5px;
     font-size: large;
+    align-items: end;
 }
 
 .message-user {
@@ -123,7 +124,13 @@ body {
 }
 
 .message-text {
-    flex: 1;
+    display: flex;
+    justify-content: space-between; /* Espacia los elementos del texto del mensaje */
+    align-items: center; /* Centra verticalmente el contenido */
+}
+
+.message-text button.chat-play-button {
+    margin-left: 10px; /* Espaciado entre el texto y el botón */
 }
 
 .chat-input-container {
@@ -159,6 +166,19 @@ body {
     transition: background-color 0.3s ease;
 }
 
+.chat-play-button {
+    margin-left: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+}
+
 .chat-audio-button {
     margin-left: 10px;
     padding: 10px;
@@ -173,13 +193,15 @@ body {
 }
 
 .chat-send-button:hover,
-.chat-audio-button:hover {
+.chat-audio-button:hover,
+.chat-play-button:hover {
     background-color: #6e6e6e;
 }
 
 
 .chat-send-button img,
-.chat-audio-button img {
+.chat-audio-button img,
+.chat-play-button img {
     width: 20px;
     height: 20px;
 }
