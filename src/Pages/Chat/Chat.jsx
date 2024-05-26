@@ -1,14 +1,24 @@
 // ChatPage.js
 import * as React from 'react';
+import { useEffect } from 'react';
 import Navbar from '../../Components/Navbar/Navbar';
 import './Chat.css';
 import logo from '../../Resources/JobSkillz_logo.svg';
 import sendIcon from '../../Resources/enviar.png';
-import audioIcon from '../../Resources/microfono.png'; // Importa la imagen para el botón de audio
+import audioIcon from '../../Resources/microfono.png'; // Importa la imagen para el botÃ³n de audio
+import audiontIcon from '../../Resources/microfono-silencio.png';
+import { useSpeechApi } from '../Chat/SpeechApi'
 
 function ChatPage() {
   const [messages, setMessages] = React.useState([]);
   const [input, setInput] = React.useState('');
+  const { transcript, isListening, startListening, stopListening } = useSpeechApi();
+
+  useEffect(() => {
+    if (!isListening) {
+      setInput(prevInput => prevInput + ' ' + transcript);
+    }
+  }, [transcript, isListening]);
 
   const handleSend = () => {
     if (input.trim()) {
@@ -21,6 +31,14 @@ function ChatPage() {
           { text: 'Este es un mensaje del bot', user: 'bot' },
         ]);
       }, 1000);
+    }
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
     }
   };
 
@@ -53,8 +71,8 @@ function ChatPage() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Escribe tu respuesta..."
           />
-          <button className="chat-button chat-audio-button">
-            <img src={audioIcon} alt="Audio" className="audio-icon-img" />
+          <button className="chat-button chat-audio-button" onClick={toggleListening}>
+            <img src={isListening ? audiontIcon : audioIcon} alt="Audio" className="audio-icon-img" />
           </button>
           <button className="chat-button chat-send-button" onClick={handleSend}>
             <img src={sendIcon} alt="Send" className="send-icon-img" />
