@@ -45,7 +45,7 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.post("/interview/question")
+@app.post("/interview/question/")
 async def get_new_interview_question(old_questions: OldQuestions):
 
     try:    
@@ -58,7 +58,7 @@ async def get_new_interview_question(old_questions: OldQuestions):
         raise HTTPException(status_code= e.status_code,  detail= e.__str__())
 
 
-@app.post("/interview/answer/feedback")
+@app.post("/interview/answer/feedback/")
 async def get_answer_feedback(answer_evaluation: AnswerEvaluation):
 
     try:    
@@ -73,7 +73,7 @@ async def get_answer_feedback(answer_evaluation: AnswerEvaluation):
         raise HTTPException(status_code= e.status_code,  detail= e.__str__())
     
 
-@app.post("/generate-audio")
+@app.post("/generate-audio/")
 async def text_to_speech_endpoint(message: TextMessage):
     try:
         audio_bytes = await text_to_speech(message = message.message, azure_key= AZURE_SPEECH_KEY, region= AZURE_SPEECH_REGION)
