@@ -90,6 +90,34 @@ async def obtain_question_answer_feedback(api_key: str, question: str, answer: s
      
 
 
+async def text_to_speech(message: str, azure_key: str, region: str, voice: str = 'en-US-JennyMultilingualNeural') -> bytes:
+    try:
+        xml_message = f'''<?xml version="1.0"?>
+        <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="es-ES">
+          <voice name="{voice}">
+            {message}
+          </voice>
+        </speak>'''
+
+        headers = {
+            'Content-Type': 'application/ssml+xml',
+            'Ocp-Apim-Subscription-Key': azure_key,
+            'X-Microsoft-OutputFormat': 'audio-16khz-32kbitrate-mono-mp3',
+        }
+
+        response = requests.post(f'https://{region}.tts.speech.microsoft.com/cognitiveservices/v1', headers=headers, data=xml_message)
+        
+        if not response.ok:
+            raise OpenAIException(status_code= response.status_code,
+                                  reason= response.reason
+                                )
+        
+        return response.content
+
+    except Exception as error:
+        raise Exception(f'Text-to-Speech Request Failed: {str(error)}')
+
+
 
 if __name__=="__main__":
     import os
@@ -98,6 +126,8 @@ if __name__=="__main__":
     load_dotenv()
 
     API_KEY = os.getenv("API_KEY")
+    AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
+    AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION")
 
     old_questions = [
          "¿Puedes describir alguna situación en la que hayas tenido que tomar una decisión difícil y cómo la abordaste?",
@@ -106,15 +136,27 @@ if __name__=="__main__":
     ]
 
     async def main():
-        question = obtain_new_interview_question(api_key= API_KEY, old_questions=[])
+        # question = await obtain_new_interview_question(api_key= API_KEY, old_questions=[])
 
-        print(question)
+        # print(question)
 
-        answer = input('answer: ')
+        # answer = input('answer: ')
 
-        feedback = obtain_question_answer_feedback(api_key= API_KEY, question= question, answer= answer)
+        # feedback = await obtain_question_answer_feedback(api_key= API_KEY, question= question, answer= answer)
 
-        print(feedback)
+        # print(feedback)
+
+        s= await text_to_speech(message='hola como estas?',
+                       azure_key= AZURE_SPEECH_KEY,
+                       region= AZURE_SPEECH_REGION
+                       )
+        
+        output_file = 'audio.mp3'
+
+        with open(output_file, 'wb') as audio_file:
+            audio_file.write(s)
+        
+        print(f"Audio saved to {output_file}")
 
 
     asyncio.run(main())

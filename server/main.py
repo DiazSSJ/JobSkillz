@@ -2,13 +2,17 @@ import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from utils import obtain_new_interview_question, obtain_question_answer_feedback
+from fastapi.responses import StreamingResponse
+from utils import obtain_new_interview_question, obtain_question_answer_feedback, text_to_speech
 from exceptions import OpenAIException
+from io import BytesIO
 
 from dotenv import load_dotenv
 load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
+AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
+AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION")
 
 app = FastAPI()
 
@@ -64,3 +68,13 @@ async def get_answer_feedback(answer_evaluation: AnswerEvaluation):
 
     except OpenAIException as e:
         raise HTTPException(status_code= e.status_code,  detail= e.__str__())
+    
+
+@app.post("/generate-audio")
+async def text_to_speech_endpoint(message: str):
+    try:
+        audio_bytes = await text_to_speech(message = message, azure_key= AZURE_SPEECH_KEY, region= AZURE_SPEECH_REGION)
+        return StreamingResponse(content= BytesIO(audio_bytes), media_type="audio/mpeg")
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
