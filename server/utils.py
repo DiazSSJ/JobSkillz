@@ -33,7 +33,7 @@ async def obtain_new_interview_question(api_key: str, old_questions: list[str]) 
     
     prompt_format = """eres un experto entrevistador, vas a entrevistar a un nuevo candidato,
         dame una sola pregunta para hacerle al candidato,
-        NO preguntas tecnicas, tu respuesta solo bebe contener la pregunta nada mas.
+        NO preguntas tecnicas, tu respuesta solo debe contener la pregunta nada mas.
         {old_questions_statement}
         {old_questions_str}
         """
@@ -90,14 +90,15 @@ async def obtain_question_answer_feedback(api_key: str, question: str, answer: s
      
 
 
-async def text_to_speech(message: str, azure_key: str, region: str, voice: str = 'en-US-JennyMultilingualNeural') -> bytes:
+async def text_to_speech(message: str, azure_key: str, region: str, voice: str = 'es-CO-SalomeNeural') -> bytes:
     try:
         xml_message = f'''<?xml version="1.0"?>
         <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="es-ES">
-          <voice name="{voice}">
+          <voice xml:lang="es-ES" name="{voice}">
             {message}
           </voice>
-        </speak>'''
+        </speak>
+        '''
 
         headers = {
             'Content-Type': 'application/ssml+xml',
@@ -105,7 +106,7 @@ async def text_to_speech(message: str, azure_key: str, region: str, voice: str =
             'X-Microsoft-OutputFormat': 'audio-16khz-32kbitrate-mono-mp3',
         }
 
-        response = requests.post(f'https://{region}.tts.speech.microsoft.com/cognitiveservices/v1', headers=headers, data=xml_message)
+        response = requests.post(f'https://westus.tts.speech.microsoft.com/cognitiveservices/v1', headers=headers, data=xml_message)
         
         if not response.ok:
             raise OpenAIException(status_code= response.status_code,
@@ -136,27 +137,27 @@ if __name__=="__main__":
     ]
 
     async def main():
-        # question = await obtain_new_interview_question(api_key= API_KEY, old_questions=[])
+        question = await obtain_new_interview_question(api_key= API_KEY, old_questions=[])
 
-        # print(question)
+        print(question)
 
-        # answer = input('answer: ')
+        answer = input('answer: ')
 
-        # feedback = await obtain_question_answer_feedback(api_key= API_KEY, question= question, answer= answer)
+        feedback = await obtain_question_answer_feedback(api_key= API_KEY, question= question, answer= answer)
 
-        # print(feedback)
+        print(feedback)
 
-        s= await text_to_speech(message='hola como estas?',
-                       azure_key= AZURE_SPEECH_KEY,
-                       region= AZURE_SPEECH_REGION
-                       )
+        # s= await text_to_speech(message='hola como estas?',
+        #                azure_key= AZURE_SPEECH_KEY,
+        #                region= AZURE_SPEECH_REGION
+        #                )
         
-        output_file = 'audio.mp3'
+        # output_file = 'audio.mp3'
 
-        with open(output_file, 'wb') as audio_file:
-            audio_file.write(s)
+        # with open(output_file, 'wb') as audio_file:
+        #     audio_file.write(s)
         
-        print(f"Audio saved to {output_file}")
+        # print(f"Audio saved to {output_file}")
 
 
     asyncio.run(main())
