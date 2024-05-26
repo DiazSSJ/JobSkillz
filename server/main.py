@@ -35,6 +35,9 @@ class AnswerEvaluation(BaseModel):
     question: str
     answer: str
 
+class TextMessage(BaseModel):
+    message: str
+
 
 
 @app.get("/")
@@ -71,9 +74,9 @@ async def get_answer_feedback(answer_evaluation: AnswerEvaluation):
     
 
 @app.post("/generate-audio")
-async def text_to_speech_endpoint(message: str):
+async def text_to_speech_endpoint(message: TextMessage):
     try:
-        audio_bytes = await text_to_speech(message = message, azure_key= AZURE_SPEECH_KEY, region= AZURE_SPEECH_REGION)
+        audio_bytes = await text_to_speech(message = message.message, azure_key= AZURE_SPEECH_KEY, region= AZURE_SPEECH_REGION)
         return StreamingResponse(content= BytesIO(audio_bytes), media_type="audio/mpeg")
     
     except Exception as e:
