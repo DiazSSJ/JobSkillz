@@ -10,11 +10,11 @@ const Home = () => {
     <div className="container-home">
       <NavbarHome />
       <div className="titles">
-        <h1 style={{ fontSize: "64px" }}>
+        <h1 style={{ fontSize: "54px" }}>
           Potencia y eleva tus <br />
           entrevistas
         </h1>
-        <p style={{ fontSize: "32px" }}>
+        <p style={{ fontSize: "20px" }}>
           Practica y mejora tus habilidades de <br />
           manera efectiva simulando entrevistas <br />
           laborales con retroalimentacion al instante.
