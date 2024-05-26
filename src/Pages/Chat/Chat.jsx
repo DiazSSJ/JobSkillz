@@ -1,36 +1,80 @@
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '../../Components/Navbar/Navbar';
 import './Chat.css';
 import logo from '../../Resources/JobSkillz_logo.svg';
 import sendIcon from '../../Resources/enviar.png';
-import audioIcon from '../../Resources/microfono.png'; // Importa la imagen para el botón de audio
+import audioIcon from '../../Resources/microfono.png';
 import audiontIcon from '../../Resources/microfono-silencio.png';
 import { useSpeechApi } from '../Chat/SpeechApi';
-import deleteIcon from '../../Resources/bote-de-basura.png'
+import deleteIcon from '../../Resources/bote-de-basura.png';
+import { getQuestion, getFeedback } from '../../api/api';
 
 function ChatPage() {
-  const [messages, setMessages] = React.useState([]);
-  const [input, setInput] = React.useState('');
+  const [messages, setMessages] = useState([{ text: '¿Estás listo para comenzar? Escribe "Sí" o "No".', user: 'bot' }]);
+  const [input, setInput] = useState('');
+  const [lastBotQuestion, setLastBotQuestion] = useState(null);
   const { transcript, isListening, startListening, stopListening } = useSpeechApi();
 
   useEffect(() => {
     if (!isListening) {
-      setInput(prevInput => prevInput + ' ' + transcript);
+      setInput(prevInput => prevInput + transcript);
     }
   }, [transcript, isListening]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim()) {
-      setMessages([...messages, { text: input, user: 'user' }]);
+      const userResponse = input.trim();
+      console.log('User response:', userResponse);
+      setMessages(prevMessages => [...prevMessages, { text: userResponse, user: 'user' }]);
       setInput('');
-      // Simular respuesta del bot
-      setTimeout(() => {
-        setMessages((prevMessages) => [
+
+      if (userResponse.toLowerCase() === 'sí' || userResponse.toLowerCase() === 'si') {
+        try {
+          const response = await getQuestion(userResponse);
+          const botQuestion = response.data.question;
+          console.log('Bot question:', botQuestion);
+          setLastBotQuestion(botQuestion);
+          setMessages(prevMessages => [...prevMessages, { text: botQuestion, user: 'bot' }]);
+        } catch (error) {
+          console.error('Error getting question:', error);
+          setMessages(prevMessages => [
+            ...prevMessages,
+            { text: 'Hubo un error obteniendo la pregunta. Intenta de nuevo.', user: 'bot' },
+          ]);
+        }
+      } else if (userResponse.toLowerCase() === 'no') {
+        setMessages(prevMessages => [
           ...prevMessages,
-          { text: 'Este es un mensaje del bot', user: 'bot' },
+          { text: 'De acuerdo, ¡vuelve cuando estés listo!', user: 'bot' },
         ]);
-      }, 1000);
+      } else {
+        if (lastBotQuestion) {
+          try {
+            const feedbackResponse = await getFeedback(lastBotQuestion, userResponse);
+            const feedbackText = feedbackResponse.data.feedback; // Ajusta según la estructura de la respuesta
+            setMessages(prevMessages => [
+              ...prevMessages,
+              { text: feedbackText, user: 'bot' },
+            ]);
+            setMessages(prevMessages => [
+              ...prevMessages,
+              { text: 'Quieres continuar? Responde "si" o "no".', user: 'bot' },
+            ]);
+          } catch (error) {
+            console.error('Error sending feedback:', error);
+            setMessages(prevMessages => [
+              ...prevMessages,
+              { text: 'Hubo un error enviando la respuesta. Intenta de nuevo.', user: 'bot' },
+            ]);
+          }
+        } else {
+          setMessages(prevMessages => [
+            ...prevMessages,
+            { text: 'Por favor responde con "Sí" o "No".', user: 'bot' },
+          ]);
+        }
+      }
     }
   };
 
