@@ -24,11 +24,30 @@ body {
     z-index: -1;
 }
 
+.chat-layout {
+    display: flex;
+    height: 89vh;
+}
+
+.history-container {
+    display: flex;
+    flex-direction: column;
+    height: 94%;
+    width: 20%;
+    margin: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f8f8f8;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 85vh;
-    width: 90vw;
+    height: 94%;
+    width: 75%;
     margin: 20px auto;
     border-radius: 8px;
     overflow: hidden;
@@ -153,16 +172,17 @@ body {
     transition: background-color 0.3s ease;
 }
 
-.chat-send-button:hover, .chat-audio-button:hover {
+.chat-send-button:hover,
+.chat-audio-button:hover {
     background-color: #6e6e6e;
 }
 
 
-.chat-send-button img, .chat-audio-button img {
+.chat-send-button img,
+.chat-audio-button img {
     width: 20px;
     height: 20px;
 }
-
 
 /* Estilos para el scroll */
 .chat-messages::-webkit-scrollbar {
@@ -171,7 +191,7 @@ body {
 
 .chat-messages::-webkit-scrollbar-track {
     background-color: #E7E7E7;
-    border-radius: 10px; 
+    border-radius: 10px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
@@ -182,4 +202,52 @@ body {
 .chat-messages::-webkit-scrollbar-thumb:hover {
     background-color: #555;
     /* Color del thumb al pasar el mouse por encima */
+}
+
+.message-item {
+    position: relative;
+    /* Hace que el contenedor sea relativo para posicionar el botón */
+    background-color: #dedede;
+    width: 100%;
+    color: rgb(0, 0, 0);
+    font-size: medium;
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+    box-shadow: 0 4px 8px rgba(71, 71, 71, 0.1);
+}
+
+.delete-button {
+    position: absolute;
+    /* Hace que el botón de eliminar sea absoluto para posicionarlo correctamente */
+    top: 50%;
+    /* Lo posiciona verticalmente en el centro */
+    right: 10px;
+    /* Lo posiciona a 5px del borde derecho */
+    transform: translateY(-55%);
+    /* Ajusta el desplazamiento vertical para centrarlo */
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.delete-button:hover{
+    background-color: #b6b6b6;
+    border-radius: 30px;
+}
+
+.delete-icon {
+    width: 20px;
+    /* Ajusta el tamaño del icono según sea necesario */
+    height: 20px;
+    padding: 1px;
+}
+
+
+.chat-history-item {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
