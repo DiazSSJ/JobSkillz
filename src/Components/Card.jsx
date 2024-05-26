@@ -5,12 +5,12 @@ import "./Card.css";
 
 function Card({ icon, title, text, button_text, action_button, estilo }) {
   return (
-    <div className="card" style={{ width: "18rem", borderRadius: "20px", height:"23rem" }}>
+    <div className="card" style={{ width: "18rem", borderRadius: "20px", height:"20rem" }}>
       <div style={{ margin: "2vh", marginBottom: "0"}}>
         <Avatar
         className="Avatar"
         src={icon}
-        sx={{ width: 76, height: 76, backgroundColor:"#D9D9D9" }}
+        sx={{ width: 70, height: 70, backgroundColor:"#D9D9D9" }}
       />
       </div>
       <div className="card-body">
