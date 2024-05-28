@@ -17,8 +17,14 @@ export const getFeedback = (question, answer) => {
   });
 };
 
-export const generateAudio = (message) => {
-  return api.post("generate-audio/", {
+export const generateAudio = async (message) => {
+  const response = await api.post("generate-audio/", {
     message: message,
-  });
+  }, { responseType: 'blob' }); 
+
+  if (response.status !== 200) {
+    throw new Error('Failed to generate audio');
+  }
+
+  return response.data;
 };
