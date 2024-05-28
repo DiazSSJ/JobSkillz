@@ -9,7 +9,7 @@ import audiontIcon from "../../Resources/microfono-silencio.png";
 import playIcon from "../../Resources/audio.png";
 import { useSpeechApi } from "../Chat/SpeechApi";
 import deleteIcon from "../../Resources/bote-de-basura.png";
-import { getQuestion, getFeedback } from "../../api/api";
+import { getQuestion, getFeedback, generateAudio } from "../../api/api";
 
 function ChatPage() {
   const [messages, setMessages] = useState([
@@ -101,18 +101,36 @@ function ChatPage() {
   };
 
   const handlePlay = async (text) => {
-    let utterance = new SpeechSynthesisUtterance(text);
-    speechSynthesis.speak(utterance);
-    // try {
-    //   console.log(text)
-    //   const audioBlob = await generateAudio(text);
-    //   console.log(audioBlob);
-    //   const audioUrl = URL.createObjectURL(audioBlob);
-    //   const audio = new Audio(audioUrl);
-    //   audio.play();
-    // } catch (error) {
-    //   console.error("Error playing audio:", error);
-    // }
+    // let utterance = new SpeechSynthesisUtterance(text);
+    // speechSynthesis.speak(utterance);
+    try {
+      // Generar el audio como un Blob
+      const audioBlob = await generateAudio(text);
+  
+      // Registrar el tipo del Blob en la consola
+      console.log('Blob type:', audioBlob.type);
+  
+      // Verificar el tipo de Blob
+      if (!audioBlob.type || audioBlob.type !== "audio/mpeg") {
+        throw new Error(`Unexpected Blob type: ${audioBlob.type}`);
+      }
+  
+      // Crear un URL para el Blob
+      const audioUrl = URL.createObjectURL(audioBlob);
+  
+      // Crear un objeto Audio con el URL del Blob
+      const audio = new Audio(audioUrl);
+  
+      // Reproducir el audio
+      audio.play();
+  
+      // Liberar el URL del Blob cuando termine de reproducirse
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl);
+      };
+    } catch (error) {
+      console.error("Error playing audio:", error);
+    }
   };
 
   const handleKeyDown = (event) => {
