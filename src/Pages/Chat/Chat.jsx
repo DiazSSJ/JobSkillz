@@ -10,6 +10,7 @@ import playIcon from "../../Resources/audio.png";
 import { useSpeechApi } from "../Chat/SpeechApi";
 import deleteIcon from "../../Resources/bote-de-basura.png";
 import { getQuestion, getFeedback, generateAudio } from "../../api/api";
+import { openDatabase, upgradeDB, saveConversation } from "../Chat/indexedDB"
 
 function ChatPage() {
   const [messages, setMessages] = useState([
@@ -19,12 +20,39 @@ function ChatPage() {
   const [lastBotQuestion, setLastBotQuestion] = useState(null);
   const { transcript, isListening, startListening, stopListening } =
     useSpeechApi();
+  const [db, setDb] = useState(null);
+  //const [conversations, setConversations] = useState([]);
+
+  useEffect(() => {
+    openDatabase('ChatDB', 5, upgradeDB).then(db => {
+      setDb(db);
+      console.log(`nombre bd: ${db.name}`);
+      //upgradeDB(db);
+      //return getConversations(db);
+    }).catch(error => console.error('Error opening database:', error));
+  }, []);
 
   useEffect(() => {
     if (!isListening) {
       setInput((prevInput) => prevInput + transcript);
     }
   }, [transcript, isListening]);
+
+  const handleSave = () => {
+    if (db) {
+      const now = new Date();
+      const day = now.getDate();
+      const month = now.getMonth() + 1; // Los meses en JavaScript son de 0 a 11, por lo que sumamos 1
+      const year = now.getFullYear();
+      saveConversation(db,
+        {
+          day:day,
+          month:month, 
+          year:year, 
+          messages: messages
+        }).catch(error => console.error("Error saving conversation:", error));
+    }
+  }
 
   const handleSend = async () => {
     if (input.trim()) {
@@ -106,24 +134,24 @@ function ChatPage() {
     try {
       // Generar el audio como un Blob
       const audioBlob = await generateAudio(text);
-  
+
       // Registrar el tipo del Blob en la consola
       console.log('Blob type:', audioBlob.type);
-  
+
       // Verificar el tipo de Blob
       if (!audioBlob.type || audioBlob.type !== "audio/mpeg") {
         throw new Error(`Unexpected Blob type: ${audioBlob.type}`);
       }
-  
+
       // Crear un URL para el Blob
       const audioUrl = URL.createObjectURL(audioBlob);
-  
+
       // Crear un objeto Audio con el URL del Blob
       const audio = new Audio(audioUrl);
-  
+
       // Reproducir el audio
       audio.play();
-  
+
       // Liberar el URL del Blob cuando termine de reproducirse
       audio.onended = () => {
         URL.revokeObjectURL(audioUrl);
@@ -163,13 +191,13 @@ function ChatPage() {
           </div>
         </div>
         <div className="chat-container">
+          <button onClick={handleSave}>Guardar</button>
           <div className="chat-messages">
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`message-wrapper ${
-                  msg.user === "bot" ? "bot-message" : "user-message"
-                }`}
+                className={`message-wrapper ${msg.user === "bot" ? "bot-message" : "user-message"
+                  }`}
               >
                 {msg.user === "bot" && (
                   <div className="bot-avatar">
@@ -177,9 +205,8 @@ function ChatPage() {
                   </div>
                 )}
                 <div
-                  className={`message ${
-                    msg.user === "bot" ? "message-bot" : "message-user"
-                  }`}
+                  className={`message ${msg.user === "bot" ? "message-bot" : "message-user"
+                    }`}
                 >
                   <div className="message-text">
                     {msg.text}
