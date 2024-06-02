@@ -10,7 +10,7 @@ import playIcon from "../../Resources/audio.png";
 import { useSpeechApi } from "../Chat/SpeechApi";
 import deleteIcon from "../../Resources/bote-de-basura.png";
 import { getQuestion, getFeedback, generateAudio } from "../../api/api";
-import { openDatabase, upgradeDB, saveConversation, getConversations } from "../Chat/indexedDB";
+import { openDatabase, upgradeDB, saveConversation, getConversations, deleteConversation } from "../Chat/indexedDB";
 import guardar from "../../Resources/guardar.png"
 import cerrar from "../../Resources/cerrar.png"
 
@@ -26,7 +26,11 @@ function ChatPage() {
   const [conversations, setConversations] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showModalConfirmSave, setShowModalConfirmSave] = useState(false);
+  const [showModalDelete, setShowModalDelete] = useState(false);
+
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const [idSelectedConversation, setidSelectedConversation] = useState(null);
+
 
   useEffect(() => {
     openDatabase('ChatDB', 5, upgradeDB).then(db => {
@@ -193,6 +197,34 @@ function ChatPage() {
     setSelectedConversation(null);
   };
 
+
+  const handleDelete = (id) => {
+    if (db) {
+      deleteConversation(db, id)
+        .then(() => {
+          console.log("Conversation deleted");
+        })
+        .catch(error => console.error("Error deleting conversation:", error));
+    }
+  };
+
+  const deleteConversationChat = () => {
+    handleDelete(idSelectedConversation);
+    window.location.reload();
+  };
+
+
+  const openModalDelete = (id, event) => {
+    event.stopPropagation();
+    setShowModalDelete(true);
+    setidSelectedConversation(id);
+  };
+
+  const closeModalDelete = () => {
+    setShowModalDelete(false);
+    setidSelectedConversation(null);
+  }
+
   return (
     <div className="app-container">
       <Navbar />
@@ -203,7 +235,7 @@ function ChatPage() {
             {conversations.map(conversation => (
               <div className="message-item" key={conversation.id} onClick={() => openModal(conversation)}>
                 {`#${conversation.id} fecha: ${conversation.day}/${conversation.month}/${conversation.year}`}
-                <button className="delete-button" onClick={(e) => e.stopPropagation()}>
+                <button className="delete-button" onClick={(event) => openModalDelete(conversation.id, event)}>
                   <img src={deleteIcon} alt="Eliminar" className="delete-icon" />
                 </button>
               </div>
@@ -300,6 +332,20 @@ function ChatPage() {
             <div className="modal-buttons">
               <button className="button-modal-save" onClick={handleSave}>Confirmar</button>
               <button className="button-modal-save" onClick={closeSaveModalConfirm}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )
+
+      }
+      {showModalDelete && (
+        <div className="modal">
+          <div className="modal-content-save">
+            <h3>Eliminar Conversación</h3>
+            <p>¿Estás seguro de eliminar la conversación?</p>
+            <div className="modal-buttons">
+              <button className="button-modal-save" onClick={deleteConversationChat}>Confirmar</button>
+              <button className="button-modal-save" onClick={closeModalDelete}>Cancelar</button>
             </div>
           </div>
         </div>

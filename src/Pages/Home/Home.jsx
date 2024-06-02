@@ -37,7 +37,7 @@ const Home = () => {
            title = "Reconocimiento"
            text = "Con nuestra opcion de reconocimiento facial, verifica si estas preparado y tienes todo lo necesario para dar la mejor impresion en tu entrevista."
            button_text = 'Reconoceme'
-           action_button = '/Reconocimiento'
+           action_button = '/Recognition'
            />
         </div>
       </div>
