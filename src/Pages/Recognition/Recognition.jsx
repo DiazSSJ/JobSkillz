@@ -53,7 +53,7 @@ function RecognitionPage() {
       setFile(file);
       setError("");
     } else {
-      setError("File size exceeds 2 MB");
+      setError("El archivo excede las 2 MB permitidas");
     }
   };
 
@@ -122,7 +122,7 @@ function RecognitionPage() {
               </div>
             )}
             <p style={{ fontSize: "150%" }}>
-              {file ? file.name : "Drag and Drop Image Here"}
+              {file ? file.name : "Arrastra y suelta tu foto aqui"}
             </p>
             {file && (
               <div className="preview">
