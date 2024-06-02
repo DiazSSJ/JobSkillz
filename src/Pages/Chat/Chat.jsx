@@ -195,7 +195,7 @@ function ChatPage() {
 
   return (
     <div className="app-container">
-      <Navbar />
+      <Navbar title = "Chatbot" />
       <div className="chat-layout">
         <div className="history-container">
           <h2>Historial de Chats</h2>

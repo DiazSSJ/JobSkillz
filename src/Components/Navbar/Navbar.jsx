@@ -8,7 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import logo from '../../Resources/JobSkillz_logo_nombre.svg';
 import volver from '../../Resources/flecha-izquierda.png';
 
-export default function Navbar() {
+export default function Navbar({title}) {
   const navigate = useNavigate();
 
   const handleBackClick = () => {
@@ -34,7 +34,7 @@ export default function Navbar() {
             component="div"
             sx={{ flexGrow: 1, textAlign: 'center', color: 'black', fontWeight: 'bold' }}
           >
-            CHATBOT
+            {title}
           </Typography>
           <IconButton color="inherit">
             <img src={logo} alt="login" style={{ width: 50, height: 50 }} />
