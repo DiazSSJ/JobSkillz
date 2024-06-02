@@ -10,7 +10,9 @@ import playIcon from "../../Resources/audio.png";
 import { useSpeechApi } from "../Chat/SpeechApi";
 import deleteIcon from "../../Resources/bote-de-basura.png";
 import { getQuestion, getFeedback, generateAudio } from "../../api/api";
-import { openDatabase, upgradeDB, saveConversation } from "../Chat/indexedDB"
+import { openDatabase, upgradeDB, saveConversation, getConversations } from "../Chat/indexedDB";
+import guardar from "../../Resources/guardar.png"
+import cerrar from "../../Resources/cerrar.png"
 
 function ChatPage() {
   const [messages, setMessages] = useState([
@@ -21,14 +23,19 @@ function ChatPage() {
   const { transcript, isListening, startListening, stopListening } =
     useSpeechApi();
   const [db, setDb] = useState(null);
-  //const [conversations, setConversations] = useState([]);
+  const [conversations, setConversations] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [showModalConfirmSave, setShowModalConfirmSave] = useState(false);
+  const [selectedConversation, setSelectedConversation] = useState(null);
 
   useEffect(() => {
     openDatabase('ChatDB', 5, upgradeDB).then(db => {
       setDb(db);
       console.log(`nombre bd: ${db.name}`);
-      //upgradeDB(db);
-      //return getConversations(db);
+      return getConversations(db);
+    }).then(conversations => {
+      setConversations(conversations);
+      console.log(conversations);
     }).catch(error => console.error('Error opening database:', error));
   }, []);
 
@@ -44,15 +51,28 @@ function ChatPage() {
       const day = now.getDate();
       const month = now.getMonth() + 1; // Los meses en JavaScript son de 0 a 11, por lo que sumamos 1
       const year = now.getFullYear();
-      saveConversation(db,
-        {
-          day:day,
-          month:month, 
-          year:year, 
-          messages: messages
-        }).catch(error => console.error("Error saving conversation:", error));
+      saveConversation(db, {
+        day: day,
+        month: month,
+        year: year,
+        messages: messages,
+      })
+        .then(() => {
+          // Si el guardado es exitoso, recarga la página
+          window.location.reload();
+        })
+        .catch(error => console.error("Error saving conversation:", error));
     }
+  };
+
+  const saveModalConfirm = () => {
+    setShowModalConfirmSave(true);
   }
+
+  const closeSaveModalConfirm = () => {
+    setShowModalConfirmSave(false);
+  }
+
 
   const handleSend = async () => {
     if (input.trim()) {
@@ -129,30 +149,18 @@ function ChatPage() {
   };
 
   const handlePlay = async (text) => {
-    // let utterance = new SpeechSynthesisUtterance(text);
-    // speechSynthesis.speak(utterance);
     try {
-      // Generar el audio como un Blob
       const audioBlob = await generateAudio(text);
-
-      // Registrar el tipo del Blob en la consola
       console.log('Blob type:', audioBlob.type);
 
-      // Verificar el tipo de Blob
       if (!audioBlob.type || audioBlob.type !== "audio/mpeg") {
         throw new Error(`Unexpected Blob type: ${audioBlob.type}`);
       }
 
-      // Crear un URL para el Blob
       const audioUrl = URL.createObjectURL(audioBlob);
-
-      // Crear un objeto Audio con el URL del Blob
       const audio = new Audio(audioUrl);
-
-      // Reproducir el audio
       audio.play();
 
-      // Liberar el URL del Blob cuando termine de reproducirse
       audio.onended = () => {
         URL.revokeObjectURL(audioUrl);
       };
@@ -175,6 +183,16 @@ function ChatPage() {
     }
   };
 
+  const openModal = (conversation) => {
+    setSelectedConversation(conversation);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedConversation(null);
+  };
+
   return (
     <div className="app-container">
       <Navbar />
@@ -182,41 +200,36 @@ function ChatPage() {
         <div className="history-container">
           <h2>Historial de Chats</h2>
           <div className="chat-history-item">
-            <div className="message-item">
-              Mensaje 1 ...
-              <button className="delete-button" onClick="">
-                <img src={deleteIcon} alt="Eliminar" className="delete-icon" />
-              </button>
-            </div>
+            {conversations.map(conversation => (
+              <div className="message-item" key={conversation.id} onClick={() => openModal(conversation)}>
+                {`#${conversation.id} fecha: ${conversation.day}/${conversation.month}/${conversation.year}`}
+                <button className="delete-button" onClick={(e) => e.stopPropagation()}>
+                  <img src={deleteIcon} alt="Eliminar" className="delete-icon" />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
         <div className="chat-container">
-          <button onClick={handleSave}>Guardar</button>
-          <div className="chat-messages">
+          <button className="save-button" onClick={saveModalConfirm}>
+            <img src={guardar} alt="Guardar" className="save-icon" />
+          </button>          <div className="chat-messages">
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`message-wrapper ${msg.user === "bot" ? "bot-message" : "user-message"
-                  }`}
+                className={`message-wrapper ${msg.user === "bot" ? "bot-message" : "user-message"}`}
               >
                 {msg.user === "bot" && (
                   <div className="bot-avatar">
                     <img src={logo} alt="Bot Avatar" />
                   </div>
                 )}
-                <div
-                  className={`message ${msg.user === "bot" ? "message-bot" : "message-user"
-                    }`}
-                >
+                <div className={`message ${msg.user === "bot" ? "message-bot" : "message-user"}`}>
                   <div className="message-text">
                     {msg.text}
                     {msg.user === "bot" && (
                       <button className="chat-play-button" onClick={() => handlePlay(msg.text)}>
-                        <img
-                          src={playIcon}
-                          alt="Play Audio"
-                          className="play-icon-img"
-                        />
+                        <img src={playIcon} alt="Play Audio" className="play-icon-img" />
                       </button>
                     )}
                   </div>
@@ -237,21 +250,62 @@ function ChatPage() {
               className="chat-button chat-audio-button"
               onClick={toggleListening}
             >
-              <img
-                src={isListening ? audiontIcon : audioIcon}
-                alt="Audio"
-                className="audio-icon-img"
-              />
+              <img src={isListening ? audiontIcon : audioIcon} alt="Audio" className="audio-icon-img" />
             </button>
-            <button
-              className="chat-button chat-send-button"
-              onClick={handleSend}
-            >
+            <button className="chat-button chat-send-button" onClick={handleSend}>
               <img src={sendIcon} alt="Send" className="send-icon-img" />
             </button>
           </div>
         </div>
       </div>
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <button className="close-button" onClick={closeModal}>
+              <img src={cerrar} alt="Cerrar" className="close-icon" />
+            </button>
+            <div className="chat-messages">
+              {selectedConversation.messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`message-wrapper ${msg.user === "bot" ? "bot-message" : "user-message"}`}
+                >
+                  {msg.user === "bot" && (
+                    <div className="bot-avatar">
+                      <img src={logo} alt="Bot Avatar" />
+                    </div>
+                  )}
+                  <div className={`message ${msg.user === "bot" ? "message-bot" : "message-user"}`}>
+                    <div className="message-text">
+                      {msg.text}
+                      {msg.user === "bot" && (
+                        <button className="chat-play-button" onClick={() => handlePlay(msg.text)}>
+                          <img src={playIcon} alt="Play Audio" className="play-icon-img" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showModalConfirmSave && (
+        <div className="modal">
+          <div className="modal-content-save">
+            <h3>Guardar Conversación</h3>
+            <p>¿Estás seguro de guardar la conversación?</p>
+            <div className="modal-buttons">
+              <button className="button-modal-save" onClick={handleSave}>Confirmar</button>
+              <button className="button-modal-save" onClick={closeSaveModalConfirm}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )
+
+      }
     </div>
   );
 }

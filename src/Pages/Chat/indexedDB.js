@@ -32,17 +32,33 @@ export const upgradeDB = (db) => {
 
 export const saveConversation = (db, conversation) => {
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction(['conversations'], 'readwrite');
-      const store = transaction.objectStore('conversations');
-      const objectStoreRequest  = store.add(conversation);
+        const transaction = db.transaction(['conversations'], 'readwrite');
+        const store = transaction.objectStore('conversations');
+        const objectStoreRequest = store.add(conversation);
 
-      objectStoreRequest.onsuccess = () => {
-        console.log("creado");
-        resolve();
-      };
-  
-      objectStoreRequest.onerror = (event) => {
-        reject(event.target.error);
-      };
+        objectStoreRequest.onsuccess = () => {
+            console.log("creado");
+            resolve();
+        };
+
+        objectStoreRequest.onerror = (event) => {
+            reject(event.target.error);
+        };
     });
-  };
+};
+
+export const getConversations = (db) => {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['conversations'], 'readonly');
+        const store = transaction.objectStore('conversations');
+        const request = store.getAll();
+
+        request.onsuccess = (event) => {
+            resolve(event.target.result);
+        };
+
+        request.onerror = (event) => {
+            reject(event.target.error);
+        };
+    });
+};
