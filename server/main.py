@@ -1,9 +1,9 @@
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from utils import obtain_new_interview_question, obtain_question_answer_feedback, text_to_speech
+from utils import obtain_new_interview_question, obtain_question_answer_feedback, text_to_speech, image_analysis
 from exceptions import OpenAIException
 from io import BytesIO
 
@@ -13,6 +13,7 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
 AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION")
+AZURE_AI_VISION_KEY = os.getenv("AZURE_AI_VISION_KEY")
 
 app = FastAPI()
 
@@ -81,3 +82,14 @@ async def text_to_speech_endpoint(message: TextMessage):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+@app.post("/analysis/candidate-image/")
+async def create_upload_file(image: UploadFile = None):
+    if not image:
+        return {"message": "No upload image sent"}
+    else:
+        output = await image_analysis(azure_vision_key= AZURE_AI_VISION_KEY, image= image.file)
+
+        return output

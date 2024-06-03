@@ -120,6 +120,25 @@ async def text_to_speech(message: str, azure_key: str, region: str, voice: str =
 
 
 
+async def image_analysis(azure_vision_key:str, image: bytes, features:list[str] = ['Tags','Adult','Categories']) -> dict:
+
+    visual_features = ','.join(features)
+    url = f"https://eastus.api.cognitive.microsoft.com/vision/v3.2/analyze?visualFeatures={visual_features}"
+    headers = {
+            'Content-Type': 'application/octet-stream',
+            'Ocp-Apim-Subscription-Key': azure_vision_key
+        }
+
+    try:
+        response = requests.post(url= url, headers= headers, data=image)
+        response.raise_for_status()
+
+        return response.json()
+
+    except Exception as error:
+        raise Exception(f'Azure image analysis Request Failed: {str(error)}')
+
+
 if __name__=="__main__":
     import os
     import asyncio
