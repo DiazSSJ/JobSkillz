@@ -7,11 +7,13 @@ import PermMediaIcon from "@mui/icons-material/PermMedia";
 import ImageIcon from "@mui/icons-material/Image";
 import LinearProgress from "@mui/material/LinearProgress";
 import "./Recognition.css";
+import { analyzeCandidateImage } from "../../api/api";
 
 function RecognitionPage() {
   const [dragging, setDragging] = useState(false);
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
+  const [analyzing, setAnalyzing] = useState(false);
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -72,6 +74,25 @@ function RecognitionPage() {
     return (size / (2 * 1024 * 1024)) * 100;
   };
 
+  const handleAnalyzeImage = async () => {
+    if (file) {
+      setAnalyzing(true);
+      try {
+        const result = await analyzeCandidateImage(file);
+        console.log('Analysis Result:', result);
+        // Aquí puedes manejar la respuesta como desees, por ejemplo, mostrar los resultados en la UI
+      } catch (error) {
+        console.error('Error analyzing image:', error);
+        setError('Error al analizar la imagen');
+      } finally {
+        setFile(null); // Limpiar el archivo después de analizar
+        setAnalyzing(false);
+      }
+    } else {
+      setError('Por favor, sube una imagen primero');
+    }
+  };
+
   return (
     <div className="app-container">
       <Navbar title="Reconocimiento" />
@@ -95,11 +116,15 @@ function RecognitionPage() {
               <ClearIcon fontSize="inherit" />
             </IconButton>
             <div className="file-info">
-            <div className="file-size">
-              {file ? formatFileSize(file.size) : "0 B"} / 2 MB
+              <div className="file-size">
+                {file ? formatFileSize(file.size) : "0 B"} / 2 MB
+              </div>
+              <LinearProgress
+                color="secondary"
+                variant="determinate"
+                value={file ? calculateProgress(file.size) : 0}
+              />
             </div>
-            <LinearProgress color="secondary" variant="determinate" value={file ? calculateProgress(file.size) : 0} />
-          </div>
           </div>
           <input
             id="file-input"
@@ -108,7 +133,6 @@ function RecognitionPage() {
             onChange={handleFileSelect}
             style={{ display: "none" }}
           />
-          
           <div
             className={`dropzone ${dragging ? "dragging" : ""}`}
             onDragEnter={handleDragEnter}
@@ -122,7 +146,7 @@ function RecognitionPage() {
               </div>
             )}
             <p style={{ fontSize: "150%" }}>
-              {file ? file.name : "Arrastra y suelta tu foto aqui"}
+              {file ? file.name : "Arrastra y suelta tu foto aquí"}
             </p>
             {file && (
               <div className="preview">
@@ -133,7 +157,9 @@ function RecognitionPage() {
           </div>
         </div>
         <div className="button-upload-image">
-          <button className="btn boton"> Analizar imagen </button>
+          <button className="btn boton" onClick={handleAnalyzeImage} disabled={analyzing}>
+            {analyzing ? "Analizando..." : "Analizar imagen"}
+          </button>
         </div>
       </div>
     </div>

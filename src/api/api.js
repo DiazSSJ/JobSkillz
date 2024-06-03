@@ -20,10 +20,28 @@ export const getFeedback = (question, answer) => {
 export const generateAudio = async (message) => {
   const response = await api.post("generate-audio/", {
     message: message,
-  }, { responseType: 'blob' }); 
+  }, { responseType: 'blob' });
 
   if (response.status !== 200) {
     throw new Error('Failed to generate audio');
+  }
+
+  return response.data;
+};
+
+// Nuevo endpoint para enviar imagen para análisis
+export const analyzeCandidateImage = async (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await api.post("analysis/candidate-image/", formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+
+  if (response.status !== 200) {
+    throw new Error('Failed to analyze image');
   }
 
   return response.data;
