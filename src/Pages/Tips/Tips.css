@@ -1,0 +1,90 @@
+.tips-layout {
+    height: 89vh;
+    width: 89vw;
+    align-self: center;
+    background-color: aliceblue;
+    justify-content: center;
+    display: flex;
+}
+
+.text {
+    margin-top: 5%;
+    width: 50%;
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.section {
+    margin-bottom: 20px;
+    white-space: normal;
+}
+
+h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+    /* Prevent text selection */
+    color: #333;
+    /* Default dark gray color */
+    display: flex;
+    align-items: center;
+    
+}
+
+h2.selected {
+    color: #1a73e8;
+    /* Blue color when selected */
+}
+
+h2:hover {
+    color: #1a73e8;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    margin-left: 20px;
+    /* Add left margin for bullets */
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+    max-height: 0;
+    /* Initial height of the collapsed content */
+}
+
+ul.open {
+    max-height: 1000px;
+    /* Arbitrary large value for open state */
+}
+
+li {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+li:before {
+    content: "• ";
+    color: #000;
+    font-weight: bold;
+}
+
+li+ul>li:before {
+    content: "- ";
+    color: #000;
+    font-weight: bold;
+}
+
+.arrow {
+    transition: transform 0.3s ease;
+    margin-left: 1%;
+    /* Smooth rotation */
+}
+
+.arrow.open {
+    transform: rotate(180deg);
+    /* Rotate 180 degrees when open */
+}

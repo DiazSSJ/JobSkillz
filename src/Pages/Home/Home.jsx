@@ -17,7 +17,7 @@ const Home = () => {
         <p style={{ fontSize: "20px" }}>
           Practica y mejora tus habilidades de <br />
           manera efectiva simulando entrevistas <br />
-          laborales con retroalimentacion al instante.
+          laborales con retroalimentación al instante.
         </p>
       </div>
       <div className="cartas">
@@ -25,7 +25,7 @@ const Home = () => {
           <Card
           icon = {Chatbot}
           title = "Chatbot"
-          text = "Utiliza el poder de la ia para practicar tus respuestas a algunas preguntas auto generadas especialmente para ti."
+          text = "Utiliza el poder de la IA para practicar tus respuestas a algunas preguntas auto generadas especialmente para ti."
           button_text = 'Preguntame'
           action_button = '/Chat'
           estilo={{ marginTop: '1.6rem' }}
@@ -35,7 +35,7 @@ const Home = () => {
           <Card 
            icon = {Recognition}
            title = "Reconocimiento"
-           text = "Con nuestra opcion de reconocimiento facial, verifica si estas preparado y tienes todo lo necesario para dar la mejor impresion en tu entrevista."
+           text = "Con nuestra opción de reconocimiento facial, verifica si estas preparado y tienes todo lo necesario para dar la mejor impresión en tu entrevista."
            button_text = 'Reconoceme'
            action_button = '/Recognition'
            />
