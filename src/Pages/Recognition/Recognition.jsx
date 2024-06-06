@@ -1,19 +1,32 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Navbar from "../../Components/Navbar/Navbar";
 import IconButton from "@mui/material/IconButton";
 import ClearIcon from "@mui/icons-material/Clear";
 import PermMediaIcon from "@mui/icons-material/PermMedia";
 import ImageIcon from "@mui/icons-material/Image";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import LinearProgress from "@mui/material/LinearProgress";
+import Camera from "@mui/icons-material/Camera";
 import "./Recognition.css";
 import { analyzeCandidateImage } from "../../api/api";
+import cerrar from "../../Resources/cerrar.png"
 
 function RecognitionPage() {
   const [dragging, setDragging] = useState(false);
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
+  const videoRef = useRef(null);
+  const photoRef = useRef(null);
+  const streamRef = useRef(null);
+  const [showCamera, setShowCamera] = useState(false);
+
+  useEffect(() => {
+    if (showCamera) {
+      getVideo();
+    }
+  }, [showCamera]);
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -93,6 +106,61 @@ function RecognitionPage() {
     }
   };
 
+  const getVideo = () => {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        let video = videoRef.current;
+        video.srcObject = stream;
+        video.play();
+        streamRef.current = stream; 
+      })
+      .catch((err) => {
+        console.error("error:", err);
+      });
+  };
+
+  const closeModal = () => {
+    stopVideo();
+    setShowCamera(false);
+  };
+
+  const takePhoto = () => {
+    const width = 400;
+    const height = 400;
+
+    let video = videoRef.current;
+    let photo = photoRef.current;
+
+    photo.width = width;
+    photo.height = height;
+
+    let ctx = photo.getContext("2d");
+    ctx.drawImage(video, 0, 0, width, height);
+    setFile(dataURLtoFile(photo.toDataURL("image/png"), "photo.png"));
+    stopVideo();
+    setShowCamera(false);
+  };
+
+  const stopVideo = () => {
+    let stream = streamRef.current;
+    stream.getTracks().forEach(track => track.stop());
+  };
+
+  const dataURLtoFile = (dataurl, filename) => {
+    let arr = dataurl.split(","),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  };
+
+  
+
+
   return (
     <div className="app-container">
       <Navbar title="Reconocimiento" />
@@ -106,6 +174,14 @@ function RecognitionPage() {
               onClick={() => document.getElementById("file-input").click()}
             >
               <PermMediaIcon fontSize="inherit" />
+            </IconButton>
+            <IconButton
+              aria-label="take photo"
+              size="large"
+              color="secondary"
+              onClick={() => setShowCamera(true)}
+            >
+              <PhotoCameraIcon fontSize="inherit" />
             </IconButton>
             <IconButton
               aria-label="delete"
@@ -161,6 +237,24 @@ function RecognitionPage() {
             {analyzing ? "Analizando..." : "Analizar imagen"}
           </button>
         </div>
+        {showCamera && (
+          <div className="modal-camera">
+            <div className="modal-camera-content">
+              <div className="camera-container">
+                <div className="close-modal-button">
+                  <button className="button-close" onClick={closeModal}>
+                    <img src={cerrar} alt="Cerrar" className="close-modal-icon" />
+                  </button>
+                </div>
+                <video className="video-container" ref={videoRef}></video>
+                <button className="btn take-photo" onClick={takePhoto}>
+                  <Camera fontSize="large"/>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        <canvas ref={photoRef} style={{ display: "none" }}></canvas>
       </div>
     </div>
   );
