@@ -27,6 +27,7 @@ function TipsPage() {
             </h2>
             <ul
               className={openSection === "1" ? "tips-title open" : "tips-title"}
+              data-testid="antes-de-la-entrevista-tips"
             >
               {/* Tips for before the interview */}
               <li>
@@ -129,6 +130,7 @@ function TipsPage() {
             </h2>
             <ul
               className={openSection === "2" ? "tips-title open" : "tips-title"}
+              data-testid="durante-la-entrevista-tips"
             >
               {/* Tips for during the interview */}
               <li>
@@ -176,6 +178,7 @@ function TipsPage() {
             </h2>
             <ul
               className={openSection === "3" ? "tips-title open" : "tips-title"}
+              data-testid="después-de-la-entrevista-tips"
             >
               {/* Tips for after the interview */}
               <li>
@@ -218,6 +221,7 @@ function TipsPage() {
             </h2>
             <ul
               className={openSection === "4" ? "tips-title open" : "tips-title"}
+              data-testid="preguntas-de-comportamiento-tips"
             >
               {/* Tips for behavior questions */}
               <li>
@@ -273,6 +277,7 @@ function TipsPage() {
             </h2>
             <ul
               className={openSection === "5" ? "tips-title open" : "tips-title"}
+              data-testid="preguntas-técnicas-tips"
             >
               {/* Tips for technical questions */}
               <li>
@@ -337,6 +342,7 @@ function TipsPage() {
             </h2>
             <ul
               className={openSection === "6" ? "tips-title open" : "tips-title"}
+              data-testid="preguntas-de-antecedentes-tips"
             >
               {/* Tips for background questions */}
               <li>
