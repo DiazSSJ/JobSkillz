@@ -5,11 +5,17 @@
     background-color: aliceblue;
     justify-content: center;
     display: flex;
+    overflow-y: auto;
+    /* Permite el scroll vertical */
+    padding-bottom: 20%;
+    /* Añadir un padding si es necesario */
 }
 
 .text {
     margin-top: 5%;
     width: 50%;
+    height: auto;
+    /* Asegúrate de que la altura sea automática */
 }
 
 h1 {
@@ -32,7 +38,7 @@ h2 {
     /* Default dark gray color */
     display: flex;
     align-items: center;
-    
+
 }
 
 h2.selected {
@@ -44,7 +50,7 @@ h2:hover {
     color: #1a73e8;
 }
 
-ul {
+.tips-title {
     list-style-type: none;
     padding: 0;
     margin: 0;
@@ -56,7 +62,12 @@ ul {
     /* Initial height of the collapsed content */
 }
 
-ul.open {
+ul {
+    list-style-type: none;
+    /* Remove default list style */
+}
+
+.tips-title.open {
     max-height: 1000px;
     /* Arbitrary large value for open state */
 }

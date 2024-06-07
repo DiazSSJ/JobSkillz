@@ -25,7 +25,9 @@ function TipsPage() {
                 ^
               </span>
             </h2>
-            <ul className={openSection === "1" ? "open" : ""}>
+            <ul
+              className={openSection === "1" ? "tips-title open" : "tips-title"}
+            >
               {/* Tips for before the interview */}
               <li>
                 Practica, practica y practica. Es una de las mejores maneras de
@@ -125,7 +127,9 @@ function TipsPage() {
                 ^
               </span>
             </h2>
-            <ul className={openSection === "2" ? "open" : ""}>
+            <ul
+              className={openSection === "2" ? "tips-title open" : "tips-title"}
+            >
               {/* Tips for during the interview */}
               <li>
                 Escucha atentamente cada pregunta. No pasa nada si te tomas un
@@ -170,7 +174,9 @@ function TipsPage() {
                 ^
               </span>
             </h2>
-            <ul className={openSection === "3" ? "open" : ""}>
+            <ul
+              className={openSection === "3" ? "tips-title open" : "tips-title"}
+            >
               {/* Tips for after the interview */}
               <li>
                 Agradece a tus entrevistadores el tiempo que te han dedicado.
@@ -210,7 +216,9 @@ function TipsPage() {
                 ^
               </span>
             </h2>
-            <ul className={openSection === "4" ? "open" : ""}>
+            <ul
+              className={openSection === "4" ? "tips-title open" : "tips-title"}
+            >
               {/* Tips for behavior questions */}
               <li>
                 Las preguntas de comportamiento son aquellas que preguntan cómo
@@ -263,7 +271,9 @@ function TipsPage() {
                 ^
               </span>
             </h2>
-            <ul className={openSection === "5" ? "open" : ""}>
+            <ul
+              className={openSection === "5" ? "tips-title open" : "tips-title"}
+            >
               {/* Tips for technical questions */}
               <li>
                 Las preguntas técnicas están diseñadas para ver cómo piensas.
@@ -315,7 +325,7 @@ function TipsPage() {
               </ul>
             </ul>
           </div>
-          <div className="section">
+          <div className="section" style={{ paddingBottom: "20%" }}>
             <h2
               className={openSection === "6" ? "selected" : ""}
               onClick={() => toggleSection("6")}
@@ -325,7 +335,9 @@ function TipsPage() {
                 ^
               </span>
             </h2>
-            <ul className={openSection === "6" ? "open" : ""}>
+            <ul
+              className={openSection === "6" ? "tips-title open" : "tips-title"}
+            >
               {/* Tips for background questions */}
               <li>
                 Las preguntas sobre antecedentes están diseñadas para ayudar al
