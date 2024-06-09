@@ -46,12 +46,12 @@ h2 {
 }
 
 h2.selected {
-    color: #1a73e8;
+    color: #884fac;
     /* Blue color when selected */
 }
 
 h2:hover {
-    color: #1a73e8;
+    color: #884fac;
 }
 
 .tips-title {

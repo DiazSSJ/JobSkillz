@@ -20,26 +20,22 @@ function ChatPage() {
   ]);
   const [input, setInput] = useState("");
   const [lastBotQuestion, setLastBotQuestion] = useState(null);
-  const { transcript, isListening, startListening, stopListening } =
-    useSpeechApi();
+  const { transcript, isListening, startListening, stopListening } = useSpeechApi();
   const [db, setDb] = useState(null);
   const [conversations, setConversations] = useState([]);
+  const [conversationsOlds, setConversationsOlds] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showModalConfirmSave, setShowModalConfirmSave] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState(false);
-
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [idSelectedConversation, setidSelectedConversation] = useState(null);
-
 
   useEffect(() => {
     openDatabase('ChatDB', 5, upgradeDB).then(db => {
       setDb(db);
-      console.log(`nombre bd: ${db.name}`);
       return getConversations(db);
     }).then(conversations => {
       setConversations(conversations);
-      console.log(conversations);
     }).catch(error => console.error('Error opening database:', error));
   }, []);
 
@@ -53,7 +49,7 @@ function ChatPage() {
     if (db) {
       const now = new Date();
       const day = now.getDate();
-      const month = now.getMonth() + 1; // Los meses en JavaScript son de 0 a 11, por lo que sumamos 1
+      const month = now.getMonth() + 1;
       const year = now.getFullYear();
       saveConversation(db, {
         day: day,
@@ -62,7 +58,6 @@ function ChatPage() {
         messages: messages,
       })
         .then(() => {
-          // Si el guardado es exitoso, recarga la página
           window.location.reload();
         })
         .catch(error => console.error("Error saving conversation:", error));
@@ -77,26 +72,22 @@ function ChatPage() {
     setShowModalConfirmSave(false);
   }
 
-
   const handleSend = async () => {
     if (input.trim()) {
       const userResponse = input.trim();
-      console.log("User response:", userResponse);
       setMessages((prevMessages) => [
         ...prevMessages,
         { text: userResponse, user: "user" },
       ]);
       setInput("");
 
-      if (
-        userResponse.toLowerCase() === "sí" ||
-        userResponse.toLowerCase() === "si"
-      ) {
+      if (userResponse.toLowerCase() === "sí" || userResponse.toLowerCase() === "si") {
         try {
-          const response = await getQuestion(userResponse);
+          const response = await getQuestion(conversationsOlds);
           const botQuestion = response.data.question;
-          console.log("Bot question:", botQuestion);
           setLastBotQuestion(botQuestion);
+          setConversationsOlds((prevQuestions) => [...prevQuestions, botQuestion]);
+          console.log(conversationsOlds);
           setMessages((prevMessages) => [
             ...prevMessages,
             { text: botQuestion, user: "bot" },
@@ -119,10 +110,7 @@ function ChatPage() {
       } else {
         if (lastBotQuestion) {
           try {
-            const feedbackResponse = await getFeedback(
-              lastBotQuestion,
-              userResponse
-            );
+            const feedbackResponse = await getFeedback(lastBotQuestion, userResponse);
             const feedbackText = feedbackResponse.data.feedback;
             setMessages((prevMessages) => [
               ...prevMessages,
@@ -155,16 +143,12 @@ function ChatPage() {
   const handlePlay = async (text) => {
     try {
       const audioBlob = await generateAudio(text);
-      console.log('Blob type:', audioBlob.type);
-
       if (!audioBlob.type || audioBlob.type !== "audio/mpeg") {
         throw new Error(`Unexpected Blob type: ${audioBlob.type}`);
       }
-
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       audio.play();
-
       audio.onended = () => {
         URL.revokeObjectURL(audioUrl);
       };
@@ -197,7 +181,6 @@ function ChatPage() {
     setSelectedConversation(null);
   };
 
-
   const handleDelete = (id) => {
     if (db) {
       deleteConversation(db, id)
@@ -213,7 +196,6 @@ function ChatPage() {
     window.location.reload();
   };
 
-
   const openModalDelete = (id, event) => {
     event.stopPropagation();
     setShowModalDelete(true);
@@ -223,11 +205,11 @@ function ChatPage() {
   const closeModalDelete = () => {
     setShowModalDelete(false);
     setidSelectedConversation(null);
-  }
+  };
 
   return (
     <div className="app-container">
-      <Navbar title="Chat"/>
+      <Navbar title="Chat" />
       <div className="chat-layout">
         <div className="history-container">
           <h2>Historial de Chats</h2>
@@ -245,7 +227,8 @@ function ChatPage() {
         <div className="chat-container">
           <button className="save-button" onClick={saveModalConfirm}>
             <img src={guardar} alt="Guardar" className="save-icon" />
-          </button>          <div className="chat-messages">
+          </button>
+          <div className="chat-messages">
             {messages.map((msg, index) => (
               <div
                 key={index}
@@ -323,7 +306,6 @@ function ChatPage() {
           </div>
         </div>
       )}
-
       {showModalConfirmSave && (
         <div className="modal">
           <div className="modal-content-save">
@@ -335,9 +317,7 @@ function ChatPage() {
             </div>
           </div>
         </div>
-      )
-
-      }
+      )}
       {showModalDelete && (
         <div className="modal">
           <div className="modal-content-save">
@@ -349,9 +329,7 @@ function ChatPage() {
             </div>
           </div>
         </div>
-      )
-
-      }
+      )}
     </div>
   );
 }
