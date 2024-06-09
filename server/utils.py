@@ -169,7 +169,7 @@ async def azure_image_visual_features_analysis(azure_vision_key:str, image: byte
 async def image_analysis(azure_vision_key:str, gemini_api_key: str, image: bytes) -> str:
     
     visual_features = await azure_image_visual_features_analysis(azure_vision_key= azure_vision_key, image= image)
-
+    print(visual_features)
     people = False
     many_people = False
     for category in visual_features.get("categories"):
@@ -179,7 +179,7 @@ async def image_analysis(azure_vision_key:str, gemini_api_key: str, image: bytes
         if name.startswith("people"):
             people = True
         
-        if name == "people_crowd" or name == "people_group" or "people_many":
+        if name == "people_crowd" or name == "people_group" or name == "people_many":
             many_people = True
 
     
@@ -187,7 +187,7 @@ async def image_analysis(azure_vision_key:str, gemini_api_key: str, image: bytes
         return "No hay ninguna persona en la imagen proporcionada"
     
     if many_people:
-         return "La imagen debe contener a una solo persona"
+         return "La imagen debe contener a una sola persona"
     
 
     adult = visual_features.get("adult")
