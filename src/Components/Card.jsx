@@ -6,7 +6,7 @@ import "./Card.css";
 function Card({ icon, title, text, button_text, action_button, estilo }) {
   return (
     <div className="card" style={{ width: "18rem", borderRadius: "20px", height:"20rem" }}>
-      <div style={{ margin: "2vh", marginBottom: "0"}}>
+      <div style={{ margin: "1vh", marginBottom: "0"}}>
         <Avatar
         className="Avatar"
         src={icon}

@@ -17,6 +17,8 @@ function RecognitionPage() {
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [response, setResponse] = useState(null);
   const videoRef = useRef(null);
   const photoRef = useRef(null);
   const streamRef = useRef(null);
@@ -93,7 +95,8 @@ function RecognitionPage() {
       try {
         const result = await analyzeCandidateImage(file);
         console.log('Analysis Result:', result);
-        // Aquí puedes manejar la respuesta como desees, por ejemplo, mostrar los resultados en la UI
+        setResponse("Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original."); // Guardar la respuesta
+        setIsModalOpen(true); // Abrir el modal
       } catch (error) {
         console.error('Error analyzing image:', error);
         setError('Error al analizar la imagen');
@@ -112,7 +115,7 @@ function RecognitionPage() {
         let video = videoRef.current;
         video.srcObject = stream;
         video.play();
-        streamRef.current = stream; 
+        streamRef.current = stream;
       })
       .catch((err) => {
         console.error("error:", err);
@@ -157,9 +160,6 @@ function RecognitionPage() {
     }
     return new File([u8arr], filename, { type: mime });
   };
-
-  
-
 
   return (
     <div className="app-container">
@@ -248,13 +248,26 @@ function RecognitionPage() {
                 </div>
                 <video className="video-container" ref={videoRef}></video>
                 <button className="btn take-photo" onClick={takePhoto}>
-                  <Camera fontSize="large"/>
+                  <Camera fontSize="large" />
                 </button>
               </div>
             </div>
           </div>
         )}
         <canvas ref={photoRef} style={{ display: "none" }}></canvas>
+        {isModalOpen && (
+          <div className="modal-response">
+            <div className="modal-content-response">
+            <h1 className="title-image-response">Analisis de la imagen</h1>
+              <div className="modal-info-image">
+                {response}
+              </div>
+              <button className="button-close-response" onClick={() => setIsModalOpen(false)}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

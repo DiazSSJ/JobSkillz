@@ -1,20 +1,24 @@
 .tips-layout {
-    height: 89vh;
-    width: 89vw;
-    align-self: center;
-    background-color: aliceblue;
-    justify-content: center;
     display: flex;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    align-self:center;
+    background-color: rgb(255, 255, 255);
     overflow-y: auto;
-    /* Permite el scroll vertical */
-    padding-bottom: 20%;
-    /* Añadir un padding si es necesario */
+}
+
+.app-container-tips{
+    position: relative; 
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
 }
 
 .text {
-    margin-top: 5%;
-    width: 50%;
-    height: auto;
+    margin-top: 6%;
+    width: 60%;
+    height: 80%;
     /* Asegúrate de que la altura sea automática */
 }
 
@@ -92,10 +96,11 @@ li+ul>li:before {
 .arrow {
     transition: transform 0.3s ease;
     margin-left: 1%;
+    transform: rotate(180deg);
     /* Smooth rotation */
 }
 
 .arrow.open {
-    transform: rotate(180deg);
+    transform: rotate(0deg);
     /* Rotate 180 degrees when open */
 }

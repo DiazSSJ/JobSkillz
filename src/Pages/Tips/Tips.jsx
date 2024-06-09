@@ -10,7 +10,7 @@ function TipsPage() {
   };
 
   return (
-    <div className="app-container">
+    <div className="app-container-tips">
       <Navbar title="Tips" />
       <div className="tips-layout">
         <div className="text">
