@@ -93,6 +93,7 @@ async def obtain_question_answer_feedback(api_key: str, question: str, answer: s
     prompt = f"""eres un experto entrevistador, estas ayudando a una persona a prepararse para una entrevista laboral.
         Ahora debes de dar feedback a la persona sobre una de sus respuestas, el feedback debe ser corto y conciso(menos de 50 palabras),
         NOO! hagas ninguna otra pregunta en el feedback.
+        Bajo ningun motivo hagas mas preguntas en la respuesta que le das a la persona.
         Omite todo tipo de saludos en le feedback.
         Tu respuesta debe de ser tono profesional y de tal manera que parezca una conversacion con la persona.
         Le hiciste esta pregunta:
@@ -145,7 +146,7 @@ async def text_to_speech(message: str, azure_key: str, region: str, voice: str =
 
 
 
-async def image_analysis(azure_vision_key:str, image: bytes, features:list[str] = ['Tags','Adult','Categories']) -> dict:
+async def azure_image_visual_features_analysis(azure_vision_key:str, image: bytes, features:list[str] = ['Tags','Adult','Categories']) -> dict:
 
     visual_features = ','.join(features)
     url = f"https://eastus.api.cognitive.microsoft.com/vision/v3.2/analyze?visualFeatures={visual_features}"
@@ -163,6 +164,70 @@ async def image_analysis(azure_vision_key:str, image: bytes, features:list[str] 
     except Exception as error:
         raise Exception(f'Azure image analysis Request Failed: {str(error)}')
 
+
+
+async def image_analysis(azure_vision_key:str, gemini_api_key: str, image: bytes) -> str:
+    
+    visual_features = await azure_image_visual_features_analysis(azure_vision_key= azure_vision_key, image= image)
+
+    people = False
+    many_people = False
+    for category in visual_features.get("categories"):
+        
+        name = category.get("name")
+    
+        if name.startswith("people"):
+            people = True
+        
+        if name == "people_crowd" or name == "people_group" or "people_many":
+            many_people = True
+
+    
+    if not people:
+        return "No hay ninguna persona en la imagen proporcionada"
+    
+    if many_people:
+         return "La imagen debe contener a una solo persona"
+    
+
+    adult = visual_features.get("adult")
+
+    if adult.get('isAdultContent') or adult.get('isRacyContent') or adult.get('isGoryContent'):
+        return "Imagen no apropiada. La imagen posee contenido para adultos"
+    
+
+    tags = visual_features.get('tags')
+    
+
+    prompt = f"""eres un experto entrevistador, estas ayudando a una persona a prepararse para una entrevista laboral.
+        Ahora debes de dar feedback a la persona sobre una imagen de ellos mismos. 
+        Dicha fotografia debe de ser una foto acta para un entorno laboral o para ser puesta en un curriculum.
+        El feedback debe ser corto y conciso(menos de 50 palabras).
+        Omite todo tipo de saludos en le feedback.
+        NOO! hagas ninguna otra pregunta en el feedback.
+        Tu respuesta debe de ser tono profesional y de tal manera que parezca una conversacion con la persona.
+
+        NO te tendras directamente la imagen, pero tendras unos tags asociados a dicha imagen los cuales ayudan a describir y entender el contenido de la imagen.
+        cada tag tiene un name el cual describe el contido de la imagen, cada name tambien tiene un confidence score el cual 
+        indica que tan seguro esta de la presencia de dicho elemento/caracteristica en la imagen.
+
+        estos son los tags de la imagen:
+
+        {tags} 
+        """
+    
+    response = await gemini_ai_request(api_key= gemini_api_key, prompt= prompt)
+
+    if not response.ok:
+            data = response.json()
+            raise GeminiAIException(status_code= response.status_code,
+                                  reason= data.get('error').get('message')
+                                  )
+    
+    text = await get_text_from_gemini_ai_response(response= response)
+    
+    return text
+    
 
 
 

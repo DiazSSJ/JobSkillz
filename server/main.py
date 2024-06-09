@@ -1,8 +1,8 @@
 import os
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, status
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from utils import obtain_new_interview_question, obtain_question_answer_feedback, text_to_speech, image_analysis
 from exceptions import OpenAIException
 from io import BytesIO
@@ -14,6 +14,8 @@ GEMINI_API_KEY = os.getenv("GEMINI_AI_KEY")
 AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
 AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION")
 AZURE_AI_VISION_KEY = os.getenv("AZURE_AI_VISION_KEY")
+
+VALID_CONTENT_TYPE_FOR_IMAGE_UPLOADS: set[str] = {'image/jpeg', 'image/png'}
 
 app = FastAPI()
 
@@ -88,8 +90,14 @@ async def text_to_speech_endpoint(message: TextMessage):
 @app.post("/analysis/candidate-image/")
 async def create_upload_file(image: UploadFile = None):
     if not image:
-        return {"message": "No upload image sent"}
-    else:
-        output = await image_analysis(azure_vision_key= AZURE_AI_VISION_KEY, image= image.file)
+        return JSONResponse(status_code= status.HTTP_400_BAD_REQUEST, content= {"error": "No upload image sent"})
 
-        return output
+    if image.content_type not in VALID_CONTENT_TYPE_FOR_IMAGE_UPLOADS:
+        message = {'error': f"Unsupported media type: {image.content_type}. Only {VALID_CONTENT_TYPE_FOR_IMAGE_UPLOADS} are supported."}
+
+        return JSONResponse(status_code= status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, content= message)
+    
+
+    output = await image_analysis(azure_vision_key= AZURE_AI_VISION_KEY, gemini_api_key= GEMINI_API_KEY, image= image.file)
+
+    return JSONResponse(content= {'message': output})
