@@ -1,25 +1,49 @@
 import requests
 from requests import Response
-from exceptions import OpenAIException
+from exceptions import GeminiAIException, AzureException
 
-async def chat_gpt_request(api_key: str, prompt: str, max_tokens: int = 50) -> Response:
+async def gemini_ai_request(api_key: str, prompt: str, max_tokens: int = 50) -> Response:
 
     try:
-            response = requests.post('https://api.openai.com/v1/chat/completions',
-                                    headers={
-                                        'Content-Type': 'application/json',
-                                        'Authorization': f'Bearer {api_key}'
-                                    },
-                                    json={
-                                        'model': 'gpt-3.5-turbo-16k',
-                                        'messages': [{'role': 'user', 'content': f'{prompt}'}],
-                                        'max_tokens': max_tokens
-                                    })            
+        headers = {
+            'Content-Type': 'application/json',
+        }
 
-            return response
+        params = {
+            'key': api_key
+        }
+
+        json_data = {
+            'contents': [
+                {
+                    'parts': [
+                        {
+                            'text': prompt,
+                        },
+                    ],
+                },
+            ],
+        }
+
+        response = requests.post(
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
+            params=params,
+            headers=headers,
+            json=json_data,
+        )
+
+        return response
 
     except Exception as e:
-        raise Exception(f"OpenAI API Request Failed: {e}")
+        raise Exception(f"Gemini-AI API Request Failed: {e}")
+    
+
+async def get_text_from_gemini_ai_response(response: Response) -> str:
+    data = response.json()
+
+    text = data.get("candidates")[0].get("content").get("parts")[0].get("text")
+
+    return text
     
 
 
@@ -50,25 +74,26 @@ async def obtain_new_interview_question(api_key: str, old_questions: list[str]) 
                                      )
         
 
-    response = await chat_gpt_request(api_key= api_key, prompt= prompt)
+    response = await gemini_ai_request(api_key= api_key, prompt= prompt)
 
     if not response.ok:
-            raise OpenAIException(status_code= response.status_code,
-                                  reason= response.reason
+            data = response.json()
+            raise GeminiAIException(status_code= response.status_code,
+                                  reason= data.get('error').get('message')
                                   )
     
 
-    data = response.json()
+    question = await get_text_from_gemini_ai_response(response= response)
 
-    return data.get('choices')[0].get('message').get('content')
-
+    return question
 
 
 async def obtain_question_answer_feedback(api_key: str, question: str, answer: str) -> str:
      
-    prompt = f"""eres un experto entrevistador, estas ayudando a una persona a prepararse para una entrevista laboral,
-        ahora debes de dar feedback a la persona sobre una de sus respuestas, el feedback debe ser corto y conciso(menos de 50 palabras),
-        NOO! hagas ninguna otra pregunta en el feedback,omite todo tipo de saludos en le feedback.
+    prompt = f"""eres un experto entrevistador, estas ayudando a una persona a prepararse para una entrevista laboral.
+        Ahora debes de dar feedback a la persona sobre una de sus respuestas, el feedback debe ser corto y conciso(menos de 50 palabras),
+        NOO! hagas ninguna otra pregunta en el feedback.
+        Omite todo tipo de saludos en le feedback.
         Tu respuesta debe de ser tono profesional y de tal manera que parezca una conversacion con la persona.
         Le hiciste esta pregunta:
         {question}
@@ -76,17 +101,17 @@ async def obtain_question_answer_feedback(api_key: str, question: str, answer: s
         {answer}
         """
 
-    response = await chat_gpt_request(api_key= api_key, prompt= prompt, max_tokens= 80)
+    response = await gemini_ai_request(api_key= api_key, prompt= prompt, max_tokens= 80)
 
     if not response.ok:
-            raise OpenAIException(status_code= response.status_code,
-                                  reason= response.reason
+            data = response.json()
+            raise GeminiAIException(status_code= response.status_code,
+                                  reason= data.get('error').get('message')
                                   )
-    
 
-    data = response.json()
+    feedback = await get_text_from_gemini_ai_response(response= response)
 
-    return data.get('choices')[0].get('message').get('content')
+    return feedback
      
 
 
@@ -109,7 +134,7 @@ async def text_to_speech(message: str, azure_key: str, region: str, voice: str =
         response = requests.post(f'https://westus.tts.speech.microsoft.com/cognitiveservices/v1', headers=headers, data=xml_message)
         
         if not response.ok:
-            raise OpenAIException(status_code= response.status_code,
+            raise AzureException(status_code= response.status_code,
                                   reason= response.reason
                                 )
         
@@ -139,32 +164,44 @@ async def image_analysis(azure_vision_key:str, image: bytes, features:list[str] 
         raise Exception(f'Azure image analysis Request Failed: {str(error)}')
 
 
+
+
 if __name__=="__main__":
     import os
     import asyncio
     from dotenv import load_dotenv
     load_dotenv()
 
-    API_KEY = os.getenv("API_KEY")
+    GEMINI_API_KEY = os.getenv("GEMINI_AI_KEY")
     AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
     AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION")
 
     old_questions = [
-         "¿Puedes describir alguna situación en la que hayas tenido que tomar una decisión difícil y cómo la abordaste?",
-         "¿Cómo te consideras un miembro valioso y colaborativo en un equipo de trabajo?",
-         "¿Cuál es la habilidad o experiencia que consideras más relevante y cómo has aplicado o aplicarías esta habilidad en el ámbito laboral?"
+        "¿Puedes describir alguna situación en la que hayas tenido que tomar una decisión difícil y cómo la abordaste?",
+        "¿Qué te apasiona fuera del trabajo? ",
+        "¿Qué te motiva a levantarte por la mañana y hacer lo que haces? ",
+        "¿Cuál es la habilidad o experiencia que consideras más relevante y cómo has aplicado o aplicarías esta habilidad en el ámbito laboral?"
     ]
 
     async def main():
-        question = await obtain_new_interview_question(api_key= API_KEY, old_questions=[])
+        response = await gemini_ai_request(api_key='fasdfas', prompt='hola como  estas')
 
-        print(question)
+        if not response.ok:
+            data = response.json()
+            raise GeminiAIException(status_code= response.status_code,
+                                  reason= data.get('error').get('message')
+                                  )
 
-        answer = input('answer: ')
 
-        feedback = await obtain_question_answer_feedback(api_key= API_KEY, question= question, answer= answer)
+        # question = await obtain_new_interview_question(api_key= GEMINI_API_KEY, old_questions= old_questions)
 
-        print(feedback)
+        # print(question)
+
+        # answer = input('answer: ')
+
+        # feedback = await obtain_question_answer_feedback(api_key= GEMINI_API_KEY, question= question, answer= answer)
+
+        # print(feedback)
 
         # s= await text_to_speech(message='hola como estas?',
         #                azure_key= AZURE_SPEECH_KEY,

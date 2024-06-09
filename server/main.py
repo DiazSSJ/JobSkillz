@@ -10,7 +10,7 @@ from io import BytesIO
 from dotenv import load_dotenv
 load_dotenv()
 
-API_KEY = os.getenv("API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_AI_KEY")
 AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
 AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION")
 AZURE_AI_VISION_KEY = os.getenv("AZURE_AI_VISION_KEY")
@@ -50,7 +50,7 @@ async def root():
 async def get_new_interview_question(old_questions: OldQuestions):
 
     try:    
-        question = await obtain_new_interview_question(api_key= API_KEY,
+        question = await obtain_new_interview_question(api_key= GEMINI_API_KEY,
                                                        old_questions= old_questions.old_questions
                                                        )
         return {'question': question}
@@ -63,7 +63,7 @@ async def get_new_interview_question(old_questions: OldQuestions):
 async def get_answer_feedback(answer_evaluation: AnswerEvaluation):
 
     try:    
-        feedback = await obtain_question_answer_feedback(api_key= API_KEY,
+        feedback = await obtain_question_answer_feedback(api_key= GEMINI_API_KEY,
                                                          question= answer_evaluation.question,
                                                          answer= answer_evaluation.answer
                                                          )
