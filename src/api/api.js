@@ -4,11 +4,11 @@ export const api = axios.create({
   baseURL: "https://job-skillz.juanbailon.xyz/",
 });
 
-export const getQuestion = (message) => {
+export const getQuestion = (oldQuestions) => {
   return api.post("interview/question/", {
-    old_questions: [message],
+    old_questions: oldQuestions,
   });
-};
+};  
 
 export const getFeedback = (question, answer) => {
   return api.post("interview/answer/feedback/", {

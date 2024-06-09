@@ -38,13 +38,12 @@ const NavbarHome = () => {
         </Typography>
         <IconButton
           edge="end"
-          color="secondary"
-          size="large"
+          size="small"
           aria-label="menu"
           sx={{ justifySelf: "end" }}
           onClick={handleTipsClick}
         >
-          <TipsAndUpdatesIcon style={{ fontSize: 50 }} size="large" />
+          <TipsAndUpdatesIcon style={{ fontSize: 40, color: "610D96" }} size="large" />
         </IconButton>
       </Toolbar>
     </AppBar>
