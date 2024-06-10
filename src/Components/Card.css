@@ -1,0 +1,14 @@
+.Avatar img {
+    height: 70%;
+    width: 70%;
+}
+
+.boton {
+    background-color: #610D96;
+    color: white
+}
+
+.boton:hover {
+    background-color: #a71aff;
+    color: white
+}
